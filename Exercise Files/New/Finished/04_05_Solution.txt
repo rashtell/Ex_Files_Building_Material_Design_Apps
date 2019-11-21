@@ -1,0 +1,55 @@
+function getArcEasingY(from, to) {
+  let p1 = { x: 0, y: 0.5 };
+  let p2 = { x: 0.5, y: 1 };
+  if ((from.x > to.x && from.y > to.y) || (from.x < to.x && from.y > to.y)) {
+    const swapXy = ({ x, y }) => ({ x: y, y: x });
+    p1 = swapXy(p1);
+    p2 = swapXy(p2);
+  }
+  return Easing.bezier(p1.x, p1.y, p2.x, p2.y);
+}
+
+const getFabContainerStyleOnTransform = (progress: Animated.Value, origin) => {
+  const inputRange = [0, MOVE_END, TRANSFORM_END, 1];
+  const sizeWhenMoveEnds = FAB_CONTAINER_INIT_SIZE * SIZE_RATIO_WHEN_MOVE_END;
+  const width = progress.interpolate({
+    inputRange,
+    outputRange: [FAB_CONTAINER_INIT_SIZE, sizeWhenMoveEnds, DIALOG_WIDTH, DIALOG_WIDTH],
+  });
+  const height = progress.interpolate({
+    inputRange,
+    outputRange: [FAB_CONTAINER_INIT_SIZE, sizeWhenMoveEnds, DIALOG_HEIGHT, DIALOG_HEIGHT],
+  });
+  let styleWhenDialogActivated = {};
+  if (origin) {
+    // move the fab container to target when progress is 1, and back when progress is 0.
+    const dialogPos = {
+      left: (WINDOW_WIDTH - DIALOG_WIDTH) / 2,
+      top: (WINDOW_HEIGHT - DIALOG_HEIGHT) / 2,
+    }
+    const targetWhenMoveEnds = {
+      left: (WINDOW_WIDTH - sizeWhenMoveEnds) / 2,
+      top: (WINDOW_HEIGHT - sizeWhenMoveEnds) / 2,
+    }
+    const left = progress.interpolate({
+      inputRange,
+      outputRange: [origin.x, targetWhenMoveEnds.left, dialogPos.left, dialogPos.left],
+    });
+    const top = progress.interpolate({
+      inputRange,
+      outputRange: [origin.y, targetWhenMoveEnds.top, dialogPos.top, dialogPos.top],
+      easing: getArcEasingY({ x: origin.x, y: origin.y }, { x: targetWhenMoveEnds.left, y: targetWhenMoveEnds.top }),
+    });
+    styleWhenDialogActivated = {
+      left,
+      top,
+      transform: [], // cancel out translateY set in getFabContainerStyleOnScroll()
+    };
+  }
+
+  return {
+    width,
+    height,
+    ...styleWhenDialogActivated,
+  }
+}

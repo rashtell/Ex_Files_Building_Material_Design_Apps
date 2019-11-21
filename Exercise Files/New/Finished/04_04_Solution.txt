@@ -1,0 +1,42 @@
+const getFabStyleOnTransform = (progress: Animated.Value) => {
+  const maxSize = Math.sqrt(Math.pow(DIALOG_WIDTH / 2, 2) + Math.pow(DIALOG_HEIGHT / 2, 2)) * 2;
+  const inputRange = [0, MOVE_END, TRANSFORM_END, 1];
+
+  //  Animate opacity, width and height
+  const opacity = progress.interpolate({
+    inputRange: [0, TRANSFORM_END, 1],
+    outputRange: [1, 1, 0],
+  });
+  const sizeWhenMoveEnds = FAB_CONTAINER_INIT_SIZE * SIZE_RATIO_WHEN_MOVE_END;
+  const width = progress.interpolate({
+    inputRange,
+    outputRange: [FAB_SIZE, sizeWhenMoveEnds, maxSize, maxSize],
+  });
+  const height = width;
+
+  // Animate backgroundColor to #FAFAFA to make the FAB blends to the dialog content better
+  const backgroundColor = progress.interpolate({
+    inputRange: [0, 1],
+    outputRange: [FAB_COLOR, '#FAFAFA']
+  });
+
+  return {
+    opacity,
+    width,
+    height,
+    borderRadius: maxSize / 2,
+    backgroundColor,
+  }
+}
+
+const getDialogStyleOnTransform = (progress: Animated.Value) => {
+  //   Fade in the dialog in the Fade phase
+  const inputRange = [0, TRANSFORM_END, 1];
+  const opacity = progress.interpolate({
+    inputRange,
+    outputRange: [0, 0, 1],
+  });
+  return {
+    opacity,
+  };
+}

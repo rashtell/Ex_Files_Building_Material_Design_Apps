@@ -1,0 +1,25 @@
+const getHeroStyleOnScroll = (scrollY: Animated.Value) => {
+  const offsetYWhenCollapsed = HERO_DELTA_Y_COLLAPSED / 2;
+  const inputRange = [0, HERO_DELTA_Y_COLLAPSED, HERO_DELTA_Y_COLLAPSED + 0.1];
+  const height = scrollY.interpolate({
+    inputRange,
+    outputRange: [HERO_HEIGHT, HERO_HEIGHT_COLLAPSED + offsetYWhenCollapsed, HERO_HEIGHT_COLLAPSED + offsetYWhenCollapsed],
+  });
+  const translateY = scrollY.interpolate({
+    inputRange,
+    outputRange: [0, -offsetYWhenCollapsed, -offsetYWhenCollapsed],
+  });
+  const elevation = scrollY.interpolate({
+    inputRange,
+    outputRange: [1, HERO_ELEVATION_COLLAPSED, HERO_ELEVATION_COLLAPSED],
+  });
+
+  return {
+    height,
+    elevation,
+    backgroundColor: 'white',
+    transform: [
+      { translateY },
+    ]
+  }
+}
